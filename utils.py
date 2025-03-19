@@ -1,4 +1,5 @@
 import numpy as np
+from common.util import im2col
 
 """
 This code builds the foundation for a basic neural network from scratch in NumPy. It initializes a two-layer network, performs forward propagation, computes loss, and estimates gradients for learning. However, some bugs need fixing before it works correctly.
@@ -30,6 +31,9 @@ def softmax(a):
 def sum_squares_error(y, t):
     return 0.5 * sum((y-t)**2)
 
+def one_hot_encoding(labels, num_classes):
+    return np.eye(num_classes)[labels]
+
 def cross_entropy_error(y, t):
     if y.ndim == 1:
         t = t.reshape(1, t.size)
@@ -43,7 +47,7 @@ def numerical_gradient(f, x):
     h = 1e-4 # 0.0001
     grad = np.zeros_like(x)
 
-    for idx in range(x.size):
+    for idx in np.ndindex(x.shape):
         tmp_val = x[idx]
 
         # calculate f(x+h)
@@ -108,7 +112,7 @@ class TwoLayerNet:
         y = np.argmax(y, axis=1)
         t = np.argmax(t, axis=1)
 
-        accuracy = np.sum(y == ) / float(x.shape[0])
+        accuracy = np.sum(y == t) / float(x.shape[0])
         return accuracy
 
     def numerical_gradient(self, x, t):
