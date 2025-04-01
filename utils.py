@@ -47,7 +47,7 @@ def numerical_gradient(f, x):
     h = 1e-4 # 0.0001
     grad = np.zeros_like(x)
 
-    for idx in np.ndindex(x.shape):
+    for idx in range(x.shape):
         tmp_val = x[idx]
 
         # calculate f(x+h)
@@ -68,7 +68,95 @@ def gradient_descent(f, init_x, lr=0.01, step_num=100):
         grad = numerical_gradient(f,x)
         x -= lr * grad
     return x
+#! Layers   
+class AddLayer:
+    def __init__(self):
+        pass
 
+    def forward(self, x, y):
+        return x + y
+
+    def backward(self, x, y):
+        return x*1, y*1
+        
+class MulLayer:
+    def __init__(self):
+        self.x = None
+        self.y = None
+
+    def forward(self, x, y):
+        self.x = x;
+        self.y = y;
+        return x*y
+
+    def backward(self, dout):
+        dx = dout * self.y
+        dy = dout * self.x
+        return dx, dy
+
+class Sigmoid:
+    def __init__(self):
+        self.out = None
+        
+    def forward(self, x):
+        self.out = 1 / (1 + np.exp(-x))
+        return self.out
+
+    def backward(self, dout):
+        dx = dout * (1.0 - self.out) * self.out
+        return dx
+        
+class Relu:
+    def __init__(self):
+        self.mask = None
+        
+    def forward(self, x):
+        self.mask = (x <= 0)
+        out = x.cop
+        out[self.mask] = 0
+        return out
+
+    def backward(self, dout):
+        dout[self.mask] = 0
+        dx = dout
+        return dx
+        
+class Affine:
+    def __init__(self, W, b):
+        self.W = W
+        self.b = b
+        self.x = None
+        self.dW = None
+        self.db = None
+        
+    def forward(self, x):
+        self.x = x
+        out = np.dot(x, self.W) + self.b
+        return out
+
+    def backward(self, dout):
+        dx = np.dot(dout, self.W.T)
+        self.dW = np.dot(self.x.T, dout)
+        self.db = np.sum(dout, axis=0)
+        return dx
+
+class SoftmaxWithLoss:
+    def __init__(self):
+        self.loss = None # loss function
+        self.y = None # softmax output
+        self.t = None # answer layer (one-hot encoded vector)
+
+    def forward(self, x, t):
+        self.t = t
+        self.y = softmax(x)
+        self.loss = cross_entropy_error(self.y, self.y)
+        return self.loss
+        
+    def backward(self, dout=1):
+        batch_size = self.t.shape[0]
+        dx = (self.y - self.t) / batch_size
+
+        return dx
 class SimpleNet:
     def __init__(self):
         # initialize with standard normal distribution
